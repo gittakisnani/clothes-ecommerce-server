@@ -7,6 +7,7 @@ import cors from 'cors'
 import logger from './utils/logger'
 import corsOptions from './config/corsOption'
 import userRouter from './routes/user.route'
+import authRouter from './routes/auth.route'
 import connect from './config/connectDB'
 const PORT = config.get<number>('PORT') || 1337
 
@@ -19,6 +20,7 @@ app.use(cookieParser())
 
 
 app.use(userRouter)
+app.use(authRouter)
 
 app.listen(PORT, () => {
     logger.info('Listening')
