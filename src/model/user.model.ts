@@ -74,7 +74,7 @@ userSchema.pre('save', async function(next) {
 
     const salt = await bcrypt.genSalt(config.get<number>('salt'));
 
-    const hash = await bcrypt.hashSync(user.password, salt);
+    const hash = bcrypt.hashSync(user.password, salt);
 
     user.password = hash
 
@@ -95,3 +95,6 @@ userSchema.virtual('fullName').get(function (this: UserDocument) {
 const User = mongoose.model<UserDocument>('User', userSchema);
 
 export default User;
+
+
+
