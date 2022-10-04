@@ -6,16 +6,18 @@ import { CreateUserInput, DeleteUserInput, FindUserByEmailInput, FindUserInput, 
 import { createUser, findUser, findUserAndDelete, findUserAndUpdate } from "../service/user.service";
 import config from 'config'
 
-
 export async function createUserHandler(req: Request<{}, {}, CreateUserInput>, res: Response) {
-    try{
-        const user = await createUser(req.body);
-        return res.status(201).json({user: omit(user.toJSON(), privateFields)})
-
+    try {
+        const { email, password } = req.body;
+        const user = await createUser({ email, password })
+        if(!user) throw Error('Cannot register new user')
+        res.status(201).json(omit(user.toJSON(), privateFields))
     } catch(err) {
-        res.status(400).json({ err: 'Cannot create user' })
+        throw err
     }
 }
+
+
 
 export async function findUserHandler(req: Request<FindUserInput>, res: Response) {
     const { userId: _id } = req.params

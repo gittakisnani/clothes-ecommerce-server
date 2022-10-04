@@ -5,7 +5,7 @@ import validate from "../middleware/validateResource";
 const router = Router();
 
 
-router.route('/users')
+router.route('/register')
     .post(validate(createUserSchema), createUserHandler)
 
 router.route('/users/:userId')
