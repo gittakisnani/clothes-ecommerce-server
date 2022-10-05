@@ -5,18 +5,17 @@ import privateFields from "../config/privateFileds";
 import { CreateUserInput, DeleteUserInput, FindUserByEmailInput, FindUserInput, UpdateUserInput } from "../schema/user.schema";
 import { createUser, findUser, findUserAndDelete, findUserAndUpdate } from "../service/user.service";
 import config from 'config'
+import asyncHandler from "express-async-handler";
 
-export async function createUserHandler(req: Request<{}, {}, CreateUserInput>, res: Response) {
-    try {
-        const { email, password } = req.body;
-        const user = await createUser({ email, password })
-        if(!user) throw Error('Cannot register new user')
-        res.status(201).json(omit(user.toJSON(), privateFields))
-    } catch(err) {
-        throw err
-    }
-}
-
+//@ts-ignore
+export const createUserHandler = asyncHandler(async (req: Request<{}, {}, CreateUserInput>, res: Response) => {
+    const { email, password } = req.body;
+    const duplicate = await findUser({ email });
+    if(duplicate) return res.status(409).json({ message: 'Cannot register with this email.'})
+    const user = await createUser({ email, password });
+    if(!user) return res.status(400).json({ message: 'Cannot register new user.'});
+    res.status(201).json(omit(user.toJSON(), privateFields))
+})
 
 
 export async function findUserHandler(req: Request<FindUserInput>, res: Response) {
@@ -33,23 +32,27 @@ export async function findUserByEmail(req: Request<FindUserByEmailInput>, res: R
     const user = await findUser({ email });
     if(!user) return res.status(400).json({ message: 'Cannot find user'})
 
-    return res.json({ user: omit(user.toJSON(), privateFields)})
+    return res.json({ user: omit(user.toJSON(), [...privateFields, '_id'])})
 }
 
-export async function updateUserHandler(req: Request<UpdateUserInput['params'], {}, UpdateUserInput['body']>, res: Response) {
-    const { userId: _id } = req.params
-
+//@ts-ignore
+export const updateUserHandler = asyncHandler(async (req: Request<UpdateUserInput['params'], {}, UpdateUserInput['body']>, res: Response) => {
+    const { userId: _id } = req.params;
+    const { email } = req.body
     if(req.body.password) {
-        const salt = await bcrypt.genSalt(config.get<number>('salt'));
-        const hash = bcrypt.hashSync(req.body.password, salt)
+        const salt = await bcrypt.genSalt(config.get<number>('salt'))
+        const hash = bcrypt.hashSync(req.body.password, salt);
         req.body.password = hash
     }
 
-    const user = await findUserAndUpdate({ _id }, req.body, { new: true })
-    if(!user) return res.status(400).json({ message: 'Cannot update user'})
+    const duplicate = await findUser({ email });
+    if(duplicate && String(duplicate?._id) !== _id.toString()) return res.status(409).json({ message: 'Cannot update email to this one.'}) 
 
-    res.json({ user: omit(user, privateFields)})
-}
+    const user = await findUserAndUpdate({ _id }, req.body, { new: true });
+    if(!user) return res.status(400).json({ message: 'cannot update user.'})
+
+    res.json(omit(user, privateFields))
+})
 
 export async function deleteUserHandler(req: Request<DeleteUserInput>, res: Response) {
     const { userId: _id } = req.params

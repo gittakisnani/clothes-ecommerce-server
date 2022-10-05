@@ -3,7 +3,9 @@ import { omit } from "lodash";
 import privateFileds from "../config/privateFileds";
 import { LoginInput } from "../schema/auth.schema";
 import { findUser } from "../service/user.service";
-import asyncHandler from 'express-async-handler'
+import asyncHandler from 'express-async-handler';
+
+
 //@ts-ignore
 export const loginHandler = asyncHandler(async (req: Request<{}, {}, LoginInput>, res: Response) => {
     const { email, password } = req.body

@@ -15,6 +15,7 @@ export const createUserSchema = object({
 const payload = {
     firstName: string().optional(),
     lastName: string().optional(),
+    username: string().optional(),
     about: string().optional(),
     url: string().min(6, 'Should be at least 6 characters').optional(),
     phone: string().optional(),
