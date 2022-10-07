@@ -24,5 +24,5 @@ export async function findProductAndUpdate(query: FilterQuery<ProductDocument>, 
 
 
 export async function findProductAndDelete(query: FilterQuery<ProductDocument>) {
-    return Product.findByIdAndDelete(query)
+    return Product.findOneAndDelete(query)
 }
