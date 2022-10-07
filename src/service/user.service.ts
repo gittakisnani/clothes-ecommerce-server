@@ -16,7 +16,7 @@ async function findUserAndUpdate(query: FilterQuery<UserDocument>, update: Updat
 }
 
 async function findUserAndDelete(query: FilterQuery<UserDocument>) {
-    return User.findOneAndDelete(query)
+    return User.findOneAndDelete(query).exec()
 }
 
 export {
