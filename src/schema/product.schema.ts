@@ -1,4 +1,4 @@
-import { object, number, string, TypeOf, array } from 'zod';
+import { object, number, string, TypeOf } from 'zod';
 
 const payload = {
     body: object({
@@ -10,7 +10,7 @@ const payload = {
         }).min(20, 'Description too short, should be 20 characters or more.'),
         images: string({
             required_error: 'Image src required'
-        }).array().length(6, '6 images are needed to accept your product'),
+        }).array().length(1, 'One or more images needed to accept your product'),
         types: string({ required_error: 'Types are required'}).array().nonempty('At least one type.'),
         sizes: string({ required_error: 'Sizes are required'}).array().nonempty('At least one size'),
         cats: string({ required_error: 'Categories are required' }).array().nonempty('At least one category'),

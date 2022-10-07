@@ -15,7 +15,7 @@ export async function findProducts(query: FilterQuery<ProductDocument>) {
 }
 
 export async function findProductAndUpdate(query: FilterQuery<ProductDocument>, update: UpdateQuery<ProductDocument>, options?: QueryOptions) {
-    return Product.findByIdAndUpdate(
+    return Product.findOneAndUpdate(
         query, 
         update,
         (options && options)
