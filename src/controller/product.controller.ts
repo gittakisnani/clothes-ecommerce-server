@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import asyncHandler from 'express-async-handler';
 import { omit } from "lodash";
-import { CreateProductInput, DeleteProductInput, GetProductInput, UpdateProductInput } from "../schema/product.schema";
-import { createProduct, findProduct, findProductAndDelete, findProductAndUpdate } from "../service/product.service";
+import { CreateProductInput, DeleteProductInput, DeleteProductsInput, GetAllProductsInput, GetProductInput, UpdateProductInput } from "../schema/product.schema";
+import { createProduct, deleteProducts, findProduct, findProductAndDelete, findProductAndUpdate, findProducts } from "../service/product.service";
 
 export const productPrivateFields = ['user', '_id', "__v"]
 
@@ -26,6 +26,22 @@ export const getProductHandler = asyncHandler(async (req: Request<GetProductInpu
     if(!product) return res.status(404).json({ message: 'Cannot find product'});
 
     res.json(omit(product.toJSON(), productPrivateFields))
+})
+
+//@ts-ignore
+export const getAllProductsHandler = asyncHandler(async (req: Request<{}, {}, GetAllProductsInput>, res: Response) => {
+    const products = await findProducts({...req.body});
+    if(!products) res.status(400).json({ message: 'Cannot find products'})
+    res.json(products)
+})
+
+//@ts-ignore
+export const deleteAllProductsHandler = asyncHandler(async (req: Request<DeleteProductsInput>, res: Response) =>{
+    const products = await deleteProducts({...req.params});
+    if(!products) return res.status(400).json({ message: 'Cannot delete products'})
+
+    res.json(products)
+
 })
 
 //@ts-ignore

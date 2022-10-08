@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUserHandler, deleteUserHandler, findUserHandler, updateUserHandler } from "../controller/user.controller";
+import { createUserHandler, deleteUserHandler, findUserHandler, getCurrentUserHandler, updateUserHandler } from "../controller/user.controller";
 import { createUserSchema, deleteUserSchema, findUserSchema, updateUserSchema } from "../schema/user.schema";
 import validate from "../middleware/validateResource";
 const router = Router();
@@ -13,4 +13,5 @@ router.route('/users/:userId')
     .put(validate(updateUserSchema), updateUserHandler)
     .delete(validate(deleteUserSchema), deleteUserHandler)
 
+router.get('/me', getCurrentUserHandler)
 export default router

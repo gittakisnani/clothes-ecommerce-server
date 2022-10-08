@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { createProductHandler, deleteProductHandler, getProductHandler, updateProductHandler } from "../controller/product.controller";
+import { createProductHandler, deleteAllProductsHandler, deleteProductHandler, getAllProductsHandler, getProductHandler, updateProductHandler } from "../controller/product.controller";
 import validate from "../middleware/validateResource";
-import { createProductSchema, deleteProductSchema, getProductSchema, updateProductSchema } from "../schema/product.schema";
+import { createProductSchema, deleteProductSchema, deleteProductsSchema, getAllProductsSchema, getProductSchema, updateProductSchema } from "../schema/product.schema";
 
 
 const router = Router();
@@ -11,5 +11,9 @@ router.route('/product/:productId')
     .get(validate(getProductSchema), getProductHandler)
     .put(validate(updateProductSchema), updateProductHandler)
     .delete(validate(deleteProductSchema), deleteProductHandler)
+
+
+router.delete('/products/:user', validate(deleteProductsSchema), deleteAllProductsHandler)
+router.get('/products',validate(getAllProductsSchema), getAllProductsHandler)
 
 export default router;

@@ -46,9 +46,29 @@ export const deleteProductSchema = object({
     ...params
 })
 
+export const getAllProductsSchema = object({
+    params: object({
+        user: string().optional(),
+        price: number().optional(),
+        gender: string().optional(),
+        sizes: string().array().optional(),
+        types: string().array().optional(),
+        cats: string().array().optional(),
+        colors: string().array().optional()
+    })
+})
+
+
+export const deleteProductsSchema = object({
+    params: object({
+        user: string().optional()
+    })
+})
 
 
 export type CreateProductInput = TypeOf<typeof createProductSchema>['body'];
 export type GetProductInput = TypeOf<typeof getProductSchema>['params']
 export type UpdateProductInput = TypeOf<typeof updateProductSchema>
 export type DeleteProductInput = TypeOf<typeof deleteProductSchema>['params']
+export type GetAllProductsInput = TypeOf<typeof getAllProductsSchema>['params']
+export type DeleteProductsInput = TypeOf<typeof deleteProductsSchema>['params']
