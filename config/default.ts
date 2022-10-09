@@ -6,5 +6,7 @@ export default {
     clientId: '',
     clientSecret: '',
     url: 'http://localhost:1337/auth/oauth/google',
-    origin: 'http://localhost:1337'
+    origin: 'http://localhost:1337',
+    privateKey: '',
+    publicKey: ''
 }

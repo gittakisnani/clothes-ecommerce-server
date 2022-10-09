@@ -2,6 +2,8 @@ import { Router } from "express";
 import { createUserHandler, deleteUserHandler, findUserHandler, getCurrentUserHandler, updateUserHandler } from "../controller/user.controller";
 import { createUserSchema, deleteUserSchema, findUserSchema, updateUserSchema } from "../schema/user.schema";
 import validate from "../middleware/validateResource";
+import { requireUser } from "../middleware/requireUser";
+import { deserializeUser } from "../middleware/deserializeUser";
 const router = Router();
 
 
@@ -13,5 +15,5 @@ router.route('/users/:userId')
     .put(validate(updateUserSchema), updateUserHandler)
     .delete(validate(deleteUserSchema), deleteUserHandler)
 
-router.get('/me', getCurrentUserHandler)
+router.get( '/me', deserializeUser, requireUser, getCurrentUserHandler)
 export default router

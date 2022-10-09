@@ -1,15 +1,30 @@
-import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
+import { FilterQuery, FlattenMaps, LeanDocument, QueryOptions, UpdateQuery } from "mongoose";
 import User, { UserDocument, UserInput } from "../model/user.model";
 import config from 'config'
 import qs from 'qs'
 
 import axios from 'axios'
+import { CreateSessionInput } from "../schema/session.schema";
+import { omit } from "lodash";
+import privateFileds, { PrivateFields } from "../config/privateFileds";
 async function createUser(input: UserInput) {
     return User.create(input)
 }
 
 async function findUser(query: FilterQuery<UserDocument>) {
     return User.findOne(query).exec()
+}
+
+
+async function validatePassword({email, password}: CreateSessionInput) {
+  const user = await User.findOne({ email }).exec();
+  if(!user) return false;
+
+  const pwdCorrect = await user.comparePassword(password);
+  if(!pwdCorrect) return false;
+
+
+  return omit(user.toJSON(), privateFileds) as Omit<UserDocument, PrivateFields>
 }
 
 async function findUserAndUpdate(query: FilterQuery<UserDocument>, update: UpdateQuery<UserDocument>, options: QueryOptions = { lean: true }) {
@@ -98,5 +113,6 @@ export {
     createUser,
     findUser,
     findUserAndDelete,
-    findUserAndUpdate
+    findUserAndUpdate,
+    validatePassword
 }
