@@ -9,7 +9,6 @@ export const productPrivateFields = ['user', '_id', "__v"]
 
 //@ts-ignore
 export const createProductHandler = asyncHandler(async (req: Request<{}, {}, CreateProductInput>, res) => {
-    //TODO:Add current user to the create input  => 6339cba43ef8fedaf21fed20
     const product = await createProduct({...req.body, user: '6339cba43ef8fedaf21fed20'})
     if(!product) return res.status(400).json({ message: 'Cannot create product'});
 

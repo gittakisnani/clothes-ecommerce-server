@@ -102,10 +102,66 @@ interface GoogleTokensResult {
       );
       return res.data;
     } catch (error: any) {
-      console.log(error)
       throw new Error(error.message);
     }
-  }
+}
+
+export interface GitHubUser {
+  login: string;
+  id: number;
+  node_id: string;
+  avatar_url: string;
+  gravatar_id: string;
+  url: string;
+  html_url: string;
+  followers_url: string;
+  following_url: string;
+  gists_url: string;
+  starred_url: string;
+  subscriptions_url: string;
+  organizations_url: string;
+  repos_url: string;
+  events_url: string;
+  received_events_url: string;
+  type: string;
+  site_admin: boolean;
+  name: string;
+  company: null;
+  blog: string;
+  location: string;
+  email: null;
+  hireable: null;
+  bio: null;
+  twitter_username: null;
+  public_repos: number;
+  public_gists: number;
+  followers: number;
+  following: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+
+export async function getGithubUser({ code } : { code: string}): Promise<GitHubUser> {
+  const githubToken = await axios.post(
+    `https://github.com/login/oauth/access_token?client_id=${config.get<string>('githubClientID')}&client_secret=${config.get<string>('githubClientSecret')}&code=${code}`
+  ).then(res => res.data).catch(err => {
+    throw err
+  })
+
+  const decoded = qs.parse(githubToken);
+  const accessToken = decoded.access_token;
+
+  return axios
+    .get("https://api.github.com/user", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    .then((res) => res.data)
+    .catch((error) => {
+      console.error(`Error getting user from GitHub`);
+      throw error;
+    });
+}
 
 
 

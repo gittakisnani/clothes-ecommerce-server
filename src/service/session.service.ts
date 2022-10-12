@@ -1,5 +1,6 @@
-import { get } from "lodash";
+import { get, omit } from "lodash";
 import { FilterQuery, UpdateQuery } from "mongoose";
+import privateFileds from "../config/privateFileds";
 import Session, { SessionDocument } from "../model/session.model";
 import { signJWT, verifyJWT } from "../utils/jwt.utils";
 import { findUser } from "./user.service";
@@ -13,6 +14,10 @@ export async function updateSession(query: FilterQuery<SessionDocument>, update:
 }
 
 
+export async function findSessions(query: FilterQuery<SessionDocument>) {
+    return Session.find(query).lean().exec()
+}
+
 export async function reIssueAccessToken({ refreshToken } : { refreshToken: string }) : Promise<boolean | string > {
     const { decoded } = verifyJWT(refreshToken);
     if(!decoded || !get(decoded, 'session')) return false;
@@ -24,8 +29,8 @@ export async function reIssueAccessToken({ refreshToken } : { refreshToken: stri
     if(!user) return false;
 
     const newAccessToken = signJWT({
-        ...user, session: session._id
-    }, {expiresIn: '15m' })
+        ...omit(user.toJSON(), privateFileds), session: session._id
+    }, {expiresIn: '10m' })
 
     return newAccessToken
 } 

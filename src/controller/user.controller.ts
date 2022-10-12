@@ -1,20 +1,22 @@
-import { Response, Request } from "express";
-import { omit } from "lodash";
+import { Response, Request, NextFunction } from "express";
+import { get, omit } from "lodash";
 import bcrypt from 'bcrypt'
 import privateFields from "../config/privateFileds";
 import { CreateUserInput, DeleteUserInput, FindUserByEmailInput, FindUserInput, UpdateUserInput } from "../schema/user.schema";
-import { createUser, findUser, findUserAndDelete, findUserAndUpdate, getGoogleOAuthTokens, getGoogleUser } from "../service/user.service";
+import { createUser, findUser, findUserAndDelete, findUserAndUpdate, getGithubUser, getGoogleOAuthTokens, getGoogleUser } from "../service/user.service";
 import config from 'config'
 import asyncHandler from "express-async-handler";
+import { signJWT } from "../utils/jwt.utils";
+import { cookiesOptions } from "./session.controller";
 
 //@ts-ignore
-export const createUserHandler = asyncHandler(async (req: Request<{}, {}, CreateUserInput>, res: Response) => {
+export const createUserHandler = asyncHandler(async (req: Request<{}, {}, CreateUserInput>, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
     const duplicate = await findUser({ email });
     if(duplicate) return res.status(409).json({ message: 'Cannot register with this email.'})
     const user = await createUser({ email, password });
     if(!user) return res.status(400).json({ message: 'Cannot register new user.'});
-    res.status(201).json(omit(user.toJSON(), privateFields))
+    next()
 })
 
 
@@ -23,7 +25,7 @@ export async function findUserHandler(req: Request<FindUserInput>, res: Response
     const user = await findUser({ _id });
     if(!user) return res.status(400).json({ message: 'Cannot find user'})
 
-    res.json({ user: omit(user.toJSON(), privateFields)})
+    res.json(omit(user.toJSON(), privateFields))
 } 
 
 export async function findUserByEmail(req: Request<FindUserByEmailInput>, res: Response) {
@@ -51,6 +53,7 @@ export const updateUserHandler = asyncHandler(async (req: Request<UpdateUserInpu
     const user = await findUserAndUpdate({ _id }, req.body, { new: true });
     if(!user) return res.status(400).json({ message: 'cannot update user.'})
 
+
     res.json(omit(user, privateFields))
 })
 
@@ -58,6 +61,11 @@ export async function deleteUserHandler(req: Request<DeleteUserInput>, res: Resp
     const { userId: _id } = req.params
     const user = await findUserAndDelete({ _id });
     if(!user) return res.status(400).json({ message: 'Cannot delete user'})
+
+
+
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken')
 
     return res.status(204).json({ message: 'User deleted'})
 }
@@ -94,8 +102,8 @@ export async function googleOauthHandler(req: Request, res: Response) {
         },
         {
           email: googleUser.email,
-        //   name: googleUser.name,
-        //   picture: googleUser.picture,
+          firstName: googleUser.name,
+          lastName: googleUser.name
         },
         {
           upsert: true,
@@ -103,11 +111,68 @@ export async function googleOauthHandler(req: Request, res: Response) {
         }
       );
       
-      res.locals.user = omit(user, privateFields)
+      res.locals.user = omit(user, privateFields);
+
+
+      const accessToken = signJWT(
+        {...omit(user, privateFields)},
+        { expiresIn: config.get<string>('accessTokenTtl')}
+      )
+
+      const refreshToken = signJWT(
+        {...omit(user, privateFields)},
+        { expiresIn: config.get<string>('refreshTokenTtl')}
+      )
+
+      res.cookie('accessToken', accessToken, cookiesOptions);
+      res.cookie('refreshToken', refreshToken, {...cookiesOptions,  maxAge: 3.154e10 })
       // redirect back to client
       res.redirect("http://localhost:3000/");
     } catch (error) {
-      console.log(error)
       return res.redirect(`http://localhost:3000/404`);
     }
+}
+
+export async function githubOauthHandler(req: Request, res: Response) {
+  const code = get(req, 'query.code');
+  const path = get(req, 'query.path', '/');
+
+  if(!code) {
+    throw new Error('No code')
   }
+
+  const githubUser = await getGithubUser({ code });
+  if(!githubUser) return res.status(400).json({ message: 'Error authenticating with github'});
+
+
+  const user = await findUserAndUpdate({
+    email: githubUser.email
+  }, 
+  {
+    email: githubUser.email || '',
+    about: githubUser.bio || '',
+    firstName: githubUser.name || '',
+    url: githubUser.blog || ''
+  },
+  {
+    new: true,
+    upsert: true
+  }
+  )
+
+  const accessToken = signJWT(
+    {...omit(user, privateFields)},
+    { expiresIn: config.get<string>('accessTokenTtl')}
+  )
+
+  const refreshToken = signJWT(
+    {...omit(user, privateFields)},
+    { expiresIn: config.get<string>('refreshTokenTtl')}
+  )
+
+
+  res.cookie('accessToken', accessToken, cookiesOptions);
+  res.cookie('refreshToken', refreshToken, {...cookiesOptions, maxAge: 3.154e10 })
+
+  res.redirect('http://localhost:3000/')
+}
