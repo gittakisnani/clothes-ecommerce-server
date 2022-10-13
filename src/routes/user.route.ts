@@ -3,7 +3,6 @@ import { createUserHandler, deleteUserHandler, findUserHandler, getCurrentUserHa
 import { createUserSchema, deleteUserSchema, findUserSchema, updateUserSchema } from "../schema/user.schema";
 import validate from "../middleware/validateResource";
 import { requireUser } from "../middleware/requireUser";
-import { deserializeUser } from "../middleware/deserializeUser";
 import { createSessionHandler } from "../controller/session.controller";
 const router = Router();
 
@@ -16,5 +15,5 @@ router.route('/users/:userId')
     .put(validate(updateUserSchema), requireUser, updateUserHandler)
     .delete(validate(deleteUserSchema), requireUser, deleteUserHandler)
 
-router.get( '/me', deserializeUser, requireUser, getCurrentUserHandler)
+router.get( '/me', requireUser, getCurrentUserHandler)
 export default router

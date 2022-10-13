@@ -127,15 +127,14 @@ export async function googleOauthHandler(req: Request, res: Response) {
       res.cookie('accessToken', accessToken, cookiesOptions);
       res.cookie('refreshToken', refreshToken, {...cookiesOptions,  maxAge: 3.154e10 })
       // redirect back to client
-      res.redirect("http://localhost:3000/");
+      res.redirect(config.get<string>('clientUri'));
     } catch (error) {
-      return res.redirect(`http://localhost:3000/404`);
+      return res.redirect(`${config.get<string>('clientUrl')}404`);
     }
 }
 
 export async function githubOauthHandler(req: Request, res: Response) {
   const code = get(req, 'query.code');
-  const path = get(req, 'query.path', '/');
 
   if(!code) {
     throw new Error('No code')
@@ -143,8 +142,11 @@ export async function githubOauthHandler(req: Request, res: Response) {
 
   const githubUser = await getGithubUser({ code });
   if(!githubUser) return res.status(400).json({ message: 'Error authenticating with github'});
-
-
+  
+  
+  //Make sure the email is not private (null)
+  if(!githubUser.email) return res.redirect(`${config.get<string>('clientUrl')}login`)
+  
   const user = await findUserAndUpdate({
     email: githubUser.email
   }, 
@@ -174,5 +176,5 @@ export async function githubOauthHandler(req: Request, res: Response) {
   res.cookie('accessToken', accessToken, cookiesOptions);
   res.cookie('refreshToken', refreshToken, {...cookiesOptions, maxAge: 3.154e10 })
 
-  res.redirect('http://localhost:3000/')
+  res.redirect(config.get<string>('clientUrl'))
 }

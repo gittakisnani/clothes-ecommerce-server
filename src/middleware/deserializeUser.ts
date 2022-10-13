@@ -8,18 +8,15 @@ import logger from "../utils/logger";
 export async function deserializeUser(req: Request, res: Response, next: NextFunction) {
     const accessToken = get(req, 'cookies.accessToken', '')
     const refreshToken = get(req, 'cookies.refreshToken')
-
     if(!accessToken) return next();
 
     const { decoded, expired } = verifyJWT(accessToken);
-
     if(decoded) {
         res.locals.user = decoded;
         return next()
     }
 
     if(expired && refreshToken) {
-        logger.info('Already expired')
         const newAccessToken = await reIssueAccessToken({ refreshToken });
         if(!newAccessToken) return next();
         //@ts-ignore

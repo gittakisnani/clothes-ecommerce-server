@@ -11,6 +11,7 @@ import authRouter from './routes/auth.route'
 import productRoute from './routes/product.route'
 import connect from './config/connectDB'
 import multer from 'multer';
+import { deserializeUser } from './middleware/deserializeUser'
 const PORT = config.get<number>('PORT') || 1337
 
 export const upload = multer({ dest: 'src/assets/images' })
@@ -23,7 +24,7 @@ app.use(cookieParser())
 app.use(express.urlencoded({ extended: false }))
 app.use(express.static('assets/images'))
 
-
+app.use(deserializeUser)
 app.use(userRouter)
 app.use(authRouter)
 app.use(productRoute)

@@ -92,6 +92,8 @@ userSchema.virtual('fullName').get(function (this: UserDocument) {
     return `${this.firstName} ${this.lastName}`
 })
 
+// userSchema.index({ email: 1}, { unique: true })
+
 const User = mongoose.model<UserDocument>('User', userSchema);
 
 export default User;

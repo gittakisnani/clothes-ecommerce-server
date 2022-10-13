@@ -13,5 +13,6 @@ export default {
     publicKey: '',
     githubClientID: '',
     githubClientSecret: '',
-    githubUrl: ''
+    githubUrl: '',
+    clientUrl: 'http://clothes-e-commerce.vercel.app/'
 }
