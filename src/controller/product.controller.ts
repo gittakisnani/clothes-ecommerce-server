@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import asyncHandler from 'express-async-handler';
 import { omit } from "lodash";
+import { UserDocument } from "../model/user.model";
 import { CreateProductInput, DeleteProductInput, DeleteProductsInput, GetAllProductsInput, GetProductInput, UpdateProductInput } from "../schema/product.schema";
 import { createProduct, deleteProducts, findProduct, findProductAndDelete, findProductAndUpdate, findProducts } from "../service/product.service";
 
@@ -9,7 +10,8 @@ export const productPrivateFields = ['user', '_id', "__v"]
 
 //@ts-ignore
 export const createProductHandler = asyncHandler(async (req: Request<{}, {}, CreateProductInput>, res) => {
-    const product = await createProduct({...req.body, user: '6339cba43ef8fedaf21fed20'})
+    const user = (res.locals.user as UserDocument)._id;
+    const product = await createProduct({...req.body, user })
     if(!product) return res.status(400).json({ message: 'Cannot create product'});
 
 

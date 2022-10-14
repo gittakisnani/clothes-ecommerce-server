@@ -127,7 +127,7 @@ export async function googleOauthHandler(req: Request, res: Response) {
       res.cookie('accessToken', accessToken, cookiesOptions);
       res.cookie('refreshToken', refreshToken, {...cookiesOptions,  maxAge: 3.154e10 })
       // redirect back to client
-      res.redirect(config.get<string>('clientUri'));
+      res.redirect(config.get<string>('clientUrl'));
     } catch (error) {
       return res.redirect(`${config.get<string>('clientUrl')}404`);
     }

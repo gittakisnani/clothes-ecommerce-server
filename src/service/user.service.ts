@@ -18,10 +18,10 @@ async function findUser(query: FilterQuery<UserDocument>) {
 
 async function validatePassword({email, password}: CreateSessionInput) {
   const user = await User.findOne({ email }).exec();
-  if(!user) return false;
+  if(!user) return { error: true, message: 'User not found'};
 
   const pwdCorrect = await user.comparePassword(password);
-  if(!pwdCorrect) return false;
+  if(!pwdCorrect) return { error: true, message: 'Invalid credentials'};
 
 
   return omit(user.toJSON(), privateFileds) as Omit<UserDocument, PrivateFields>

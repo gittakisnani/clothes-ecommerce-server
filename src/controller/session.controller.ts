@@ -17,8 +17,8 @@ export const cookiesOptions: CookieOptions = {
 
 //@ts-ignore
 export const createSessionHandler = asyncHandler(async (req: Request<{}, {}, CreateSessionInput>, res: Response) => {
-    const user = await validatePassword(req.body);
-    if(!user) return res.status(400).json({ message: 'Something went wrong'});
+    const user = await validatePassword(req.body) as any;
+    if(user.error) return res.status(400).json({ message: user.message });
 
     const session = await createSession(user._id, req.get('user-agent') || '');
     if(!session) return res.status(400).json({ message: 'Cannot create session'})
