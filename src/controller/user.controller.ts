@@ -75,7 +75,7 @@ export function getCurrentUserHandler(req: Request, res: Response) {
   const { user } = res.locals;
   if(!user) return res.status(400).json({message: 'User not logged in'})
 
-  res.json(user)
+  res.json(omit(user, ['iat', 'exp']))
 }
 
 export async function googleOauthHandler(req: Request, res: Response) {

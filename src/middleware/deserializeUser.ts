@@ -3,13 +3,12 @@ import { get } from "lodash";
 import { cookiesOptions } from "../controller/session.controller";
 import { reIssueAccessToken } from "../service/session.service";
 import { verifyJWT } from "../utils/jwt.utils";
-import logger from "../utils/logger";
 
 export async function deserializeUser(req: Request, res: Response, next: NextFunction) {
     const accessToken = get(req, 'cookies.accessToken', '')
     const refreshToken = get(req, 'cookies.refreshToken')
     if(!accessToken) return next();
-
+    
     const { decoded, expired } = verifyJWT(accessToken);
     if(decoded) {
         res.locals.user = decoded;
