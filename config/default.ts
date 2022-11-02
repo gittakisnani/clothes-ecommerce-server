@@ -14,5 +14,5 @@ export default {
     githubClientID: '',
     githubClientSecret: '',
     githubUrl: '',
-    clientUrl: 'https://clothes-e-commerce.vercel.app/'
+    clientUrl: 'http://localhost:3000'
 }
