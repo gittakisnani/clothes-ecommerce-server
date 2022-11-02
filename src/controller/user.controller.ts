@@ -53,7 +53,6 @@ export const updateUserHandler = asyncHandler(async (req: Request<UpdateUserInpu
     const user = await findUserAndUpdate({ _id }, req.body, { new: true });
     if(!user) return res.status(400).json({ message: 'cannot update user.'})
 
-
     res.json(omit(user, privateFields))
 })
 
@@ -71,11 +70,14 @@ export async function deleteUserHandler(req: Request<DeleteUserInput>, res: Resp
 }
 
 
-export function getCurrentUserHandler(req: Request, res: Response) {
+export async function getCurrentUserHandler(req: Request, res: Response) {
   const { user } = res.locals;
   if(!user) return res.status(400).json({message: 'User not logged in'})
 
-  res.json(omit(user, ['iat', 'exp']))
+  const me = await findUser({ _id: user._id })
+
+
+  res.json(omit(me?.toJSON(), ['iat', 'exp']))
 }
 
 export async function googleOauthHandler(req: Request, res: Response) {

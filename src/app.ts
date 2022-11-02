@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express'
+import express from 'express'
 import dotenv from 'dotenv'
 dotenv.config()
 import config from 'config'
@@ -28,6 +28,9 @@ app.use(deserializeUser)
 app.use(userRouter)
 app.use(authRouter)
 app.use(productRoute)
+app.get('/healthcheck', (_, res) => {
+    res.sendStatus(200)
+})
 
 app.listen(PORT, () => {
     logger.info('Listening')
