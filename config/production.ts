@@ -7,12 +7,12 @@ export default {
     databaseUri: '',
     clientId: '',
     clientSecret: '',
-    url: 'https://e-commerce-clothes-server.onrender.com/auth/oauth/google',
-    origin: 'https://e-commerce-clothes-server.onrender.com',
+    url: '',
+    origin: '',
     privateKey: '',
     publicKey: '',
     githubClientID: '',
     githubClientSecret: '',
     githubUrl: '',
-    clientUrl: 'http://clothes-e-commerce.vercel.app/'
+    clientUrl: 'https://clothes-e-commerce.vercel.app/'
 }

@@ -77,7 +77,7 @@ export async function getCurrentUserHandler(req: Request, res: Response) {
   const me = await findUser({ _id: user._id })
 
 
-  res.json(omit(me?.toJSON(), ['iat', 'exp']))
+  res.json(omit(me?.toJSON(), ['__v', 'password']))
 }
 
 export async function googleOauthHandler(req: Request, res: Response) {

@@ -6,5 +6,7 @@ export default {
     publicKey: 'PUBLIC_KEY',
     githubClientID: 'GITHUB_CLIENT_ID',
     githubClientSecret: 'GITHUB_CLIENT_SECRET',
-    githubUrl: 'GITHUB_REDIRECT'
+    githubUrl: 'GITHUB_REDIRECT',
+    url: 'URL',
+    origin: 'ORIGIN'
 }
